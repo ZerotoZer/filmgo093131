@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <%- include('./partials/head') %>
+    <title>Home</title>
+</head>
+<body>
+<%- include('./partials/nav') %>
+
+<div class="container mt-5">
+    <div class="row">
+        <div class="col-3">
+            <% const imagePosterUrl = `https://image.tmdb.org/t/p/w500/${movie.poster_path}` %>
+            <% const imageBackdropUrl = `https://image.tmdb.org/t/p/w500/${movie.backdrop_path}` %>
+            <img class="w-100 rounded mb-4" src="<%= imagePosterUrl %>" alt="movie">
+            <div data-bs-toggle="modal" data-bs-target="#trailerModal" style="position: relative;">
+                <button class="btn btn-danger" type="button" style="position: absolute; bottom: 1rem; right:1rem">Trailer</button>
+                <a href="#">
+                    <img class="w-100 rounded" src="<%= `https://img.youtube.com/vi/${movieTrailer.key}/maxresdefault.jpg` %>" alt="trailer">
+                </a>
+            </div>
+        </div>
+        <div class="col-6">
+            <h1 class="mb-4"><%= movie.title%></h1>
+            <a class="btn btn-secondary btn-lg mb-5" href="<%= movie.id %>/addWatchLater">Watch later</a>
+            <div class="btn-group">
+
+                <a href="/title/<%= movie.id %>/rate/1" class="btn btn-outline-warning">1</a>
+                <a href="/title/<%= movie.id %>/rate/2" class="btn btn-outline-warning">2</a>
+                <a href="/title/<%= movie.id %>/rate/3" class="btn btn-outline-warning">3</a>
+                <a href="/title/<%= movie.id %>/rate/4" class="btn btn-outline-warning">4</a>
+                <a href="/title/<%= movie.id %>/rate/5" class="btn btn-outline-warning">5</a>
+                <a href="/title/<%= movie.id %>/rate/6" class="btn btn-outline-warning">6</a>
+                <a href="/title/<%= movie.id %>/rate/7" class="btn btn-outline-warning">7</a>
+                <a href="/title/<%= movie.id %>/rate/8" class="btn btn-outline-warning">8</a>
+                <a href="/title/<%= movie.id %>/rate/9" class="btn btn-outline-warning">9</a>
+                <a href="/title/<%= movie.id %>/rate/10" class="btn btn-outline-warning">10</a>
+
+            </div>
+            <h2>Overview</h2>
+            <p class="text-secondary"><%= movie.overview %></p>
+            <h2>About</h2>
+            <div class="row">
+                <div class="col-3 text-secondary">
+
+                </div>
+                <div class="col-9">
+
+                </div>
+            </div>
+        </div>
+        <div class="col-3">
+            <h3 class="text-success"></h3>
+        </div>
+    </div>
+</div>
+
+<!-- modal for trailer -->
+<div class="modal fade" id="trailerModal" tabindex="-1" aria-labelledby="modalTitle" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalTitle">Trailer</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="ratio ratio-16x9">
+                    <iframe src="https://www.youtube.com/embed/<%= movieTrailer.key %>?autoplay=1" title="YouTube video" allowfullscreen></iframe>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- comments-->
+
+
+
+<div class="container mt-20 mb-20">
+    <!-- form for comments-->
+    <div class="container my-5 pt-5 border-top">
+        <form action="/title/comment/<%= movie.id%>" method="post">
+            <div class="form-floating">
+                <textarea class="form-control text-secondary" placeholder="Leave a comment here" id="floatingTextarea" name="comment"></textarea>
+                <label for="floatingTextarea">Leave your comment here</label>
+            </div>
+            <button class="btn btn-primary mt-3 rounded-0" >Comment</button>
+        </form>
+    </div>
+    <!--bunch of comments -->
+    <!-- I like and hate this part so much -Abylai -->
+    <% function find(item) { %>
+        <% for (let i = 0; i < comments.length; i++) {%>
+            <% if (item === comments[i]._id.toString()) { %>
+                <% return comments[i]; %>
+            <% } %>
+        <% } %>
+    <% } %>
+    <!-- Recursion function to print replies. To do that used trees and -id-s for references as nodes -->
+    <% function printReplies(comment) { %>
+        <div class="border-start border-dark ps-4 my-3">
+        <% comment.replies.forEach((reply_id) => { %>
+            <% const comment = find(reply_id.toString()) %>
+                <div class="fw-bold"><%= comment.username %></div>
+                <p class="mb-0 text-break"><%= comment.comment_body %></p>
+
+                <button class="btn btn btn-outline-secondary mb-1 border-0 p-0 px-1" type="button" data-bs-toggle="collapse" data-bs-target="#collapse<%= comment._id.toString()%>" aria-expanded="false">
+                    <i class="bi bi-reply"></i>
+                </button>
+
+
+                <!-- collapse for reply -->
+                <div class="collapse my-2 " id="collapse<%= comment._id.toString()%>">
+                    <div class="card card-body border-primary">
+                        <div id="comment<%=comment._id%>">
+                            <form  action="/title/<%=movie.id%>/reply/<%=comment._id%>" method="post" s >
+                                <div class="form-floating">
+                                    <textarea class="form-control" placeholder="Leave a comment here" id="floatingTextarea" name="reply"></textarea>
+                                    <label for="floatingTextarea">Add a reply</label>
+                                </div>
+                                <button class="btn btn-primary mt-3" >Reply</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                <% printReplies(comment) %>
+        <%}) %>
+        </div>
+    <% } %>
+
+    <% comments.forEach(comment => { %>
+        <% if (comment.level === 0) {%>
+
+            <div class="border-start border-dark ps-4 my-3">
+                <div class="fw-bold"><%= comment.username %></div>
+                <p class="mb-0 text-break"><%= comment.comment_body %></p>
+
+                <button class="btn btn btn-outline-secondary mb-1 border-0 p-0 px-1" type="button" data-bs-toggle="collapse" data-bs-target="#collapse<%= comment._id.toString()%>" aria-expanded="false">
+                    <i class="bi bi-reply"></i>
+                </button>
+
+                <!-- collapse for reply -->
+                <div class="collapse my-2 " id="collapse<%= comment._id.toString()%>">
+                    <div class="card card-body border-primary">
+                        <div id="comment<%=comment._id%>">
+                            <form  action="/title/<%=movie.id%>/reply/<%=comment._id%>" method="post" s >
+                                <div class="form-floating">
+                                    <textarea class="form-control" placeholder="Leave a comment here" id="floatingTextarea" name="reply"></textarea>
+                                    <label for="floatingTextarea">Add a reply</label>
+                                </div>
+                                <button class="btn btn-primary mt-3" >Reply</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <% printReplies(comment) %>
+
+
+
+            </div>
+
+
+        <% } %>
+    <% }) %>
+</div>
+
+</body>
+<%- include('./partials/footer') %>
+
+</html>

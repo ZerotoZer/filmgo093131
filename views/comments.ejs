@@ -1,0 +1,59 @@
+
+<!-- comments-->
+<div class="container mt-20 mb-20">
+    <!-- form for comments-->
+    <form action="/title/comment/<%= movie.id%>" method="post">
+        <div class="form-floating">
+            <textarea class="form-control" placeholder="Leave a comment here" id="floatingTextarea" name="comment"></textarea>
+            <label for="floatingTextarea">Leave your comment here</label>
+        </div>
+        <button class="btn btn-primary mt-3 rounded-0" >Comment</button>
+    </form>
+    <!--bunch of comments -->
+    <% comments.forEach(comment => { %>
+    <div class="d-flex flex-start my-5 mt-3">
+        <div class="flex-grow-1 flex-shrink-1">
+            <div>
+                <div class="d-flex justify-content-between align-items-center">
+                    <p class="mb-1">
+                        <%= comment.username %><span class="small"> - <%= comment.createdAt %></span>
+                    </p>
+                    <button class="btn btn-light"  id="button<%=comment._id%>"><i class=" 	fa fa-mail-reply"></i><span class="small"> reply</span></button>
+                </div>
+                <p class="small mb-0">
+                    <%= comment.comment_body %>
+                </p>
+            </div>
+            <!-- hi-->
+            <div id="comment<%=comment._id%>">
+                <form  action="/title/<%=movie.id%>/reply/<%=comment._id%>" method="post" s >
+                    <div class="form-floating">
+                        <textarea class="form-control" placeholder="Leave a comment here" id="floatingTextarea" name="reply"></textarea>
+                        <label for="floatingTextarea">Add a reply</label>
+                    </div>
+                    <button class="btn btn-secondary mt-3" >Reply</button>
+                </form>
+            </div>
+            <!-- replies -->
+            <% comment.replies.forEach(reply => { %>
+                <div class="d-flex flex-start mt-3 ms-4">
+                    <div class="flex-grow-1 flex-shrink-1">
+                        <div>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <p class="mb-1">
+                                    <%= reply.username%>  <span class="small"><%=reply.createdAt%></span>
+                                </p>
+                            </div>
+                            <p class="small mb-0">
+                                <%= reply.comment_body%>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+            <% }); %>
+            <% }); %>
+
+        </div>
+    </div>
+</div>
